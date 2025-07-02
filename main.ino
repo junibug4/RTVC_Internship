@@ -16,6 +16,7 @@ Servo myservo;
 #define OUTPUT_READABLE_YAWPITCHROLL
 #define INTERRUPT_PIN 2
 #define LED_PIN 13
+#define REVERSE  1
 
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
 #include <Wire.h>
@@ -33,6 +34,8 @@ Quaternion q;
 VectorFloat gravity;
 float ypr[3];
 volatile bool mpuInterrupt = false;
+double pitchCopy;
+
 
 void dmpDataReady() {
   mpuInterrupt = true;
@@ -41,7 +44,7 @@ void dmpDataReady() {
 #define ACCEL_IN 4
 #define SERVO_OUT 9
 double setpoint, pitch, servo_angle,  fan_angle;    
-double Kp = 5 , Ki = 0.5 , Kd = 0.01; 
+double Kp = 30 , Ki = 0. , Kd = 0.0; 
 PID myPID(&pitch, &servo_angle, &setpoint, Kp, Ki, Kd, DIRECT);   
 
 void setup() // #########################  SETUP  ############################ //
@@ -63,7 +66,7 @@ void setup() // #########################  SETUP  ############################ /
 
   myPID.SetMode(AUTOMATIC);    // initialising myPID
   myPID.SetTunings(Kp, Ki, Kd);   
-  myPID.SetOutputLimits(-100,-100);
+  myPID.SetOutputLimits(-70,70);
 
   Wire.begin();             // Start of copied code. Attributed to Phil Lightfoot
     Wire.setClock(400000);
@@ -157,7 +160,9 @@ void loop() { // #########################  LOOP  ############################ /
   if (dataFile) {
     dataFile.println(pitch);
     dataFile.close();
-    Serial.print(pitch);
+    pitchCopy = pitch;
+    // Serial.print("pitch = ");
+    // Serial.print(pitch);
   } else {
     Serial.println("error opening datalog.txt");  
   }
@@ -171,18 +176,19 @@ void loop() { // #########################  LOOP  ############################ /
   
   pitch = ypr[1];
   myPID.Compute();
-    servo_angle = pitch + 90;    // setpoint = 0 so for fan to be downwards, servo must be at 90 deg
+    double servo_out = servo_angle + 90;    // setpoint = 0 so for fan to be downwards, servo must be at 90 deg
 
   if (servo_angle < 20)
   {servo_angle = 20;}
   if (servo_angle > 160)
   {servo_angle = 160;}
 
-  // myservo.write(servo_angle);
-  myservo.write(pitch + 90);
-
-  Serial.print("    ,    servo_angle = ");
-  Serial.println(servo_angle);
+  myservo.write(servo_out);
+  // myservo.write(pitchCopy + 90);
+  Serial.print("pitchCopy = ");
+  Serial.print(pitchCopy);
+  Serial.print("    ,    servo_out = ");
+  Serial.println(servo_out);
   
-  delay(50);
+  delay(200);
 }
