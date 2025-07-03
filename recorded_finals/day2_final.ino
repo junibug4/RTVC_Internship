@@ -1,4 +1,8 @@
 //Main .ino file
+// This script should read the rocket's pitch, write this to the SD card,
+// and then use this to aim the thrust fan to stabilise the rocket.
+
+// It has quite a way to go ..
 
 #include <PID_v1.h> 
 #include <I2Cdev.h>
