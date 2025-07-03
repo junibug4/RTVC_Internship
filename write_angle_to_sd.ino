@@ -106,5 +106,5 @@ void loop() {
         digitalWrite(LED_PIN, blinkState);
         
     }
-    delay(50);   //change this to change the rate that you print values to the serial monitor or plotter
+    delay(8);   //change this to change the rate that you print values to the serial monitor or plotter
 }
