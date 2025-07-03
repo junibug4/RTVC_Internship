@@ -44,7 +44,7 @@ void dmpDataReady() {
 
 #define ACCEL_IN 4
 #define SERVO_OUT 9
-double setpoint, pitch, fan_angle,  fan_angle;    
+double setpoint, pitch, fan_angle, servo_angle;    
 double Kp = 50 , Ki = 0. , Kd = 0.0; 
 PID myPID(&pitch, &fan_angle, &setpoint, Kp, Ki, Kd, DIRECT);   
 
@@ -189,12 +189,12 @@ void loop() { // #########################  LOOP  ############################ /
   if (servo_out > 160)
   {servo_out = 160;}
 
-  myservo.write(servo_out);
   // myservo.write(pitchCopy + 90);
   Serial.print("pitchCopy = ");
   Serial.print(pitchCopy);
   Serial.print("    ,    servo_out = ");
   Serial.println(servo_out);
+  myservo.write(servo_out);
   
   delay(8);
 }
