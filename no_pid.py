@@ -4,7 +4,7 @@ import numpy as np
 
 #%% ------------------------------------------------------------
 
-time = np.linspace(0, 500, 1000)  # 10 seconds, 100 steps
+time = np.linspace(0, 5000, 10000)  # 10 seconds, 100 steps
 dt = time[1] - time[0]
 displacement = 30
 track_disp = []
