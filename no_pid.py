@@ -4,25 +4,26 @@ import numpy as np
 
 #%% ------------------------------------------------------------
 
-time = np.linspace(0, 5000, 10000)  # 10 seconds, 100 steps
+time = np.linspace(0, 500, 1000)  # 10 seconds, 100 steps
 dt = time[1] - time[0]
 displacement = 30
 track_disp = []
 velocity = 0
 gravity = 9.810
+mass = 450.8E-3 # Mass of the rocket
 thrust0 = .015
 fan_angle = 10  # Angle of the fan in degrees
-inertia = 0.04  # Moment of inertia of the pendulum
-com_sep = 0.002  # Center of mass separation from pivot point
+inertia = 7.90E-6  # Moment of inertia of the pendulum
+com_sep = 0.0042  # Center of mass separation from pivot point
 fan_sep = 0.2  # Fan separation from pivot point
-friction_coefficient = 0.001  # Coefficient of friction
+friction_coefficient = 0.0086  # Coefficient of friction
 
 
 for t in time:
     
     # Implement PID control
     # Calculate change in displacement in one time step
-    torque = gravity * np.sin(np.radians(displacement)) * com_sep #+ np.sin(np.radians(fan_angle)) * thrust0 * fan_sep
+    torque = gravity * np.sin(np.radians(displacement)) * com_sep * mass #+ np.sin(np.radians(fan_angle)) * thrust0 * fan_sep
     
     friction = np.exp(-t * friction_coefficient)  # Simulate friction that decreases over time
 

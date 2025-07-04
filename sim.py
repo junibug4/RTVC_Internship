@@ -50,6 +50,7 @@ velocity = 0
 gravity = 9.810
 thrust0 = .15
 fan_angle = 45  # Angle of the fan in degrees
+mass = 450.8E-3
 inertia = 0.2  # Moment of inertia of the pendulum
 #===--------------------------------------------------------===#
 
