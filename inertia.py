@@ -8,12 +8,12 @@ from scipy.optimize import curve_fit
 # ## --- Use this to calculate the rocket's moment of inertia ---
 
 
-filename = 'datafiles/spin_fan45_05_1139.txt' # 'datafiles/spin_noFan_04_1413.txt'
+filename = 'datafiles/spin_fan20_06_1603.txt'
 data = np.loadtxt(filename)
 timeAxis = np.linspace(0,(len(data)*0.008),len(data)) # timestep for arduino is 8 ms
 timeStep = timeAxis[1] - timeAxis[0]
 
-start,end = int(5.05/0.008), int(6.1/0.008) # 0, len(data)
+start,end = int(2/0.008), int(5/0.008)
 
 data = data[start:end]  # Remove first START and last END samples to remove initial noise
 timeAxis = timeAxis[start:end]  # Adjust time axis accordingly
@@ -74,4 +74,4 @@ inertia = torque / acceleration  # I = T / alpha
 print("T = ",torque," I = ",inertia)
 
 r = np.sqrt(inertia / 0.4508) # Moment of inertia = m * r^2
-print("Distance from axis to CoM = " , r)
+print("Distance from axis to CoM = ", r)
