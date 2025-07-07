@@ -9,10 +9,9 @@ filename = 'datafiles/friction_05_1435.txt'
 data = np.loadtxt(filename)
 timeAxis = np.linspace(0,(len(data)*0.008),len(data)) # timestep for arduino is 8 ms
 
-start,end = int(2.1/0.008) , -20# 0,len(data)
+start,end = int(2.65/0.008) , -20# 0,len(data)
 data = data[start:end]  # Remove first START and last END samples to remove initial noise
-timeAxis = timeAxis[start:end]  # Adjust time axis accordingly
-
+timeAxis = timeAxis[:-int(2.65/0.008) -20]  # Adjust time axis accordingly
 
 # for i in range(len(data)):
 #     if data[i] < 0:
@@ -59,3 +58,6 @@ plt.scatter(timeAxis, friction_curve(timeAxis, *params), color='red',
 #         label='Fitted Curve', alpha=0.7, s = 1)
 plt.legend()
 plt.show()
+print("Natural damping coefficient =", params[1])
+
+# %%

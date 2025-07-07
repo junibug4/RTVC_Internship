@@ -74,4 +74,4 @@ inertia = torque / acceleration  # I = T / alpha
 print("T = ",torque," I = ",inertia)
 
 r = np.sqrt(inertia / 0.4508) # Moment of inertia = m * r^2
-print("Radius = ",r)
+print("Distance from axis to CoM = " , r)

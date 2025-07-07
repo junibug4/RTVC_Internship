@@ -1,65 +1,72 @@
-#%% ---- Imports -----------------------------------------------
-import matplotlib.pyplot as plt
+#%%
 import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
-#%% ------------------------------------------------------------
+#%% ===----------- Load data from file ----------=== %%#
 
-time = np.linspace(0, 500, 1000)  # 10 seconds, 100 steps
-dt = time[1] - time[0]
-displacement = 30
-track_disp = []
-velocity = 0
-gravity = 9.810
-mass = 450.8E-3 # Mass of the rocket
-thrust0 = .015
-fan_angle = 10  # Angle of the fan in degrees
-inertia = 7.90E-6  # Moment of inertia of the pendulum
-com_sep = 0.0042  # Center of mass separation from pivot point
-fan_sep = 0.2  # Fan separation from pivot point
-friction_coefficient = 0.0086  # Coefficient of friction
-
-
-for t in time:
-    
-    # Implement PID control
-    # Calculate change in displacement in one time step
-    torque = gravity * np.sin(np.radians(displacement)) * com_sep * mass #+ np.sin(np.radians(fan_angle)) * thrust0 * fan_sep
-    
-    friction = np.exp(-t * friction_coefficient)  # Simulate friction that decreases over time
-
-    # torque *= friction
-    angular_acceleration = torque / inertia
-    velocity += angular_acceleration * dt
-    displacement += velocity * dt * friction
-
-    # if displacement > 180:
-    #     displacement -= 360
-    # elif displacement < -180:
-    #     displacement += 360
-
-    track_disp.append(displacement)
-
-plt.plot(time, track_disp)
-plt.xlabel('Time (s)')
-plt.hlines(180,time[0], time[-1], colors='orange', linestyles='dashed')
-plt.ylabel('Displacement (degrees)')
-plt.show()
-
-# %% ------------------------------------------------------------
-
-filename = 'spin_noFan_04_1413.txt'
+filename = 'datafiles/friction_05_1435.txt'
 data = np.loadtxt(filename)
-
-timeAxis = np.linspace(0,(len(data)*0.008),len(data)) # timestep for arduino is 8 ms
-
-for i in range(len(data)):
-    if data[i] < 0:
-        data[i] += 360
-
-plt.plot(timeAxis[350:], data[350:], label='Spin Data')
-plt.hlines(160,timeAxis[0], timeAxis[-1], colors='orange', linestyles='dashed')
-plt.xlabel('Time (s)')
-plt.ylabel('Displacement (degrees)')   
-plt.show()
+timeAxis = np.linspace(0, (len(data) * 0.008), len(data))
+start, end = int(2.65 / 0.008), -20  # 0, len(data)
+data = data[start:end]
+timeAxis , dt = timeAxis[:-int(2.65/0.008) -20] , timeAxis[1] - timeAxis[0]
 
 
+plt.plot(timeAxis, data, label='Spin Data')
+
+
+#%% ------------------------------------------------ %%#
+
+# timeAxis = np.arange(0,30,1000)  # Adjust time axis accordingly
+
+def pendulum_model(timeAxis, fan_angle, p0, L, Beta, w0=0):
+    dt = timeAxis[1] - timeAxis[0]
+    mass = 0.4508
+    thrust = 0.015
+    g = 9.81
+
+    # w0 = 0
+    # p0 = 60
+    # L = .04
+    # Beta = 6e-5
+    # fan_angle = 15 
+
+
+    position_array , W = [p0], [w0]
+
+    X = np.zeros(len(timeAxis))
+    for i in range(len(timeAxis)):
+        if i == 0:
+            p , w = p0 , w0
+        else:
+            p = p + w * dt 
+
+            gravity_term = - abs(g / L) * np.sin(np.radians(p))
+            driving_term = thrust / (mass * L**2) * np.sin(np.radians(fan_angle))
+            drag_term = -2 * Beta * w / (mass * L**2)
+
+            w = w + dt * (gravity_term + driving_term + drag_term) 
+            # w = w + dt * (gravity_term  + drag_term) 
+
+            position_array.append(p)
+            W.append(w)
+    return position_array
+
+P = pendulum_model(timeAxis, fan_angle=15, p0=60, L=0.04, Beta=6e-5)
+
+
+
+# plt.plot(timeAxis, W, label='Pendulum Model', color='green', linestyle='dashed', alpha=0.4)
+plt.plot(timeAxis, P, label='Pendulum Model')
+
+
+#%% --- Fit the model to the data --- %%#
+
+guess = [15 , 60, 0.04, 6e-5]
+
+params, covariance = curve_fit(pendulum_model, timeAxis, data, p0=guess)
+print(f"Fitted parameters: {params}")
+
+plt.plot(timeAxis, pendulum_model(timeAxis, *params), color='red', linestyle='dashed', label='Fitted Model')
+plt.plot(timeAxis, data, label='Measured Data', alpha=0.6)
