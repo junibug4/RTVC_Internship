@@ -1,12 +1,17 @@
 /* Code attributed to Phil Lightfoot. Unedited by junibug */
-
+#include <Servo.h>
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
+
+#include <SPI.h>
+#include <SD.h>
 
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
 #include "Wire.h"
 #endif
 
+Servo myservo;
+const int chipSelect = 4;
 MPU6050 mpu;
 
 #define OUTPUT_READABLE_YAWPITCHROLL
@@ -32,6 +37,8 @@ void dmpDataReady() {
 
 void setup() {
     Serial.begin(115200);
+
+
 
     Wire.begin();
     Wire.setClock(400000);
@@ -67,9 +74,22 @@ void setup() {
         Serial.println(F(")"));
     }
     pinMode(LED_PIN, OUTPUT);
+
+
+          myservo.attach(9);
+
+        if (!SD.begin(chipSelect)) {
+    Serial.println("Card failed, or not present");
+    while (1); // Halt execution if the card is not found
+    }
+    Serial.println("Card initialized.");
+    
 }
 
 void loop() {
+
+  String pitch;
+
     if (!dmpReady) return;
     while (!mpuInterrupt && fifoCount < packetSize) {
         fifoCount = mpu.getFIFOCount();
@@ -104,7 +124,25 @@ void loop() {
 
         blinkState = !blinkState;
         digitalWrite(LED_PIN, blinkState);
+
+          // Open file for writing
+
+  pitch = ypr[1]* 180/M_PI;
+
+  String dataString = "";
+  dataString += String(pitch); 
+  
+  File dataFile = SD.open("datalog.txt", FILE_WRITE);
+
+  if (dataFile) {
+    dataFile.println(dataString);
+    dataFile.close();
+    Serial.println(dataString); // Also print to serial monitor
+  } else {
+    Serial.println("error opening datalog.txt");
+  }
         
+        myservo.write(66);
     }
     delay(8);   //change this to change the rate that you print values to the serial monitor or plotter
 }
