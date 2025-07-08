@@ -5,7 +5,7 @@ from scipy.optimize import curve_fit
 
 #%% ===----------- Load data from file ----------=== %%#
 
-filename = 'datafiles/friction_05_1435.txt'
+filename = 'datafiles/friction_05_1435.txt' # 'datafiles/spin_nofan_05_1116.txt'
 data = np.loadtxt(filename)
 timeAxis = np.linspace(0, (len(data) * 0.008), len(data))
 start, end = int(2.65 / 0.008), -20  # 0, len(data)
@@ -46,8 +46,8 @@ def pendulum_model(timeAxis, fan_angle, p0, L, Beta, w0=0):
             driving_term = thrust / (mass * L**2) * np.sin(np.radians(fan_angle))
             drag_term = -2 * Beta * w / (mass * L**2)
 
-            w = w + dt * (gravity_term + driving_term + drag_term) 
-            # w = w + dt * (gravity_term  + drag_term) 
+            # w = w + dt * (gravity_term + driving_term + drag_term) 
+            w = w + dt * (gravity_term  + drag_term) 
 
             position_array.append(p)
             W.append(w)
@@ -63,10 +63,11 @@ plt.plot(timeAxis, P, label='Pendulum Model')
 
 #%% --- Fit the model to the data --- %%#
 
-guess = [15 , 60, 0.04, 6e-5]
+guess = [0, -100, 0.04, 6e-5]
 
 params, covariance = curve_fit(pendulum_model, timeAxis, data, p0=guess)
 print(f"Fitted parameters: {params}")
 
 plt.plot(timeAxis, pendulum_model(timeAxis, *params), color='red', linestyle='dashed', label='Fitted Model')
 plt.plot(timeAxis, data, label='Measured Data', alpha=0.6)
+# %%
