@@ -19,18 +19,19 @@ plt.plot(timeAxis, data, label='Spin Data')
 #%% ------------------------------------------------ %%#
 
 # timeAxis = np.arange(0,30,1000)  # Adjust time axis accordingly
+    
+# w0 = 0
+# p0 = 60
+# L = .04
+# Beta = 6e-5
+# fan_angle = 15 
 
-def pendulum_model(timeAxis, fan_angle, p0, L, Beta, w0=0):
+
+def pendulum_model(timeAxis, fan_angle, p0, L, Beta, thrust = 0.015, w0=0 , mass = 0.4508):
     dt = timeAxis[1] - timeAxis[0]
-    mass = 0.4508
-    thrust = 0.015
+    # mass = 0.4508
+    # thrust = 0.015
     g = 9.81
-
-    # w0 = 0
-    # p0 = 60
-    # L = .04
-    # Beta = 6e-5
-    # fan_angle = 15 
 
 
     position_array , W = [p0], [w0]
@@ -46,8 +47,8 @@ def pendulum_model(timeAxis, fan_angle, p0, L, Beta, w0=0):
             driving_term = thrust / (mass * L**2) * np.sin(np.radians(fan_angle))
             drag_term = -2 * Beta * w / (mass * L**2)
 
-            # w = w + dt * (gravity_term + driving_term + drag_term) 
-            w = w + dt * (gravity_term  + drag_term) 
+            w = w + dt * (gravity_term + driving_term + drag_term) 
+            # w = w + dt * (gravity_term  + drag_term) 
 
             position_array.append(p)
             W.append(w)
@@ -63,11 +64,12 @@ plt.plot(timeAxis, P, label='Pendulum Model')
 
 #%% --- Fit the model to the data --- %%#
 
-guess = [0, -100, 0.04, 6e-5]
+guess = [0, -100, 0.04, 6e-5]  # Initial guess for parameters: [fan_angle, p0, L, Beta, w0, mass, thrust]
 
 params, covariance = curve_fit(pendulum_model, timeAxis, data, p0=guess)
-print(f"Fitted parameters: {params}")
+print(f"fan_angle: {params[0]}\np0: {params[1]}\nL: {params[2]}\nBeta: {params[3]}")#\nthrust: {params[4]}")
 
 plt.plot(timeAxis, pendulum_model(timeAxis, *params), color='red', linestyle='dashed', label='Fitted Model')
 plt.plot(timeAxis, data, label='Measured Data', alpha=0.6)
+plt.show()
 # %%
