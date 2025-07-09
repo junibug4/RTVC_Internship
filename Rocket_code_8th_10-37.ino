@@ -1,4 +1,6 @@
-
+'''
+Authored by Ben Pink - July 2025
+'''
 #include <Servo.h>
 
 

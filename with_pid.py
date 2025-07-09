@@ -36,20 +36,9 @@ def compute(self, process_variable, dt):
         
         return output
 
-#%% ------------------------------------------------------------
-# Initialize PID controller
-setpoint = 0  # Desired temperature
-
-# Simulation parameters
-time = np.linspace(0, 10, int(10/0.008))  # 10 seconds, 1000 steps
-dt = time[1] - time[0]
-
-
-#%% ===------ Implementing pid -----------------------------===#
+#%% ===------ Defining Physical Model -----------------------------===#
 
 pid = PIDController(Kp=.2, Ki=0.1, Kd=.8, setpoint=0)
-
-
 
 def driven_pendulum_model(timeAxis, p0, L, Beta_L = 6e-9 , Beta_Q = 8e-8 , w0=0, thrust = 0.015,  mass = 0.4508):
     dt = (timeAxis[1] - timeAxis[0])*1.1
@@ -84,6 +73,9 @@ def driven_pendulum_model(timeAxis, p0, L, Beta_L = 6e-9 , Beta_Q = 8e-8 , w0=0,
 
 #%% ------------------------------------------------------------
 # Simulate the driven pendulum model
+
+setpoint = 0
+experimental_args = [-40, 0.009, 6e-09, 8e-08, 350, 0.0132]
 
 pid = PIDController(Kp=.2, Ki=0.3, Kd=.3, setpoint=setpoint)
 
@@ -208,3 +200,4 @@ for test_p in range_p:
     print(get_convergence(simulation))
 
     print("Model converges within a degree after ",ten_secs[get_convergence(simulation)], " seconds.")
+

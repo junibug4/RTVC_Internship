@@ -1,3 +1,12 @@
+'''
+The model rocket we are building is coded to write its PID values, pitch, and fan angle to
+its SD card. This code consists of a few blocks designed to read this data and write it to
+dedicated files. One section splits the data into files based on the PID values, and one 
+has specified splits to distinguish between datasets from one another inside one original file.
+
+Authored by Junibug4 - July 2025
+'''
+
 #%%
 import numpy as np
 import matplotlib.pyplot as plt

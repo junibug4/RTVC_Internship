@@ -1,3 +1,11 @@
+'''
+This code is written to read datalogs from the model rocket to plot (and in the bottom
+section animate) the rocket's pitch against time. Some commented out sections of code
+can be put back in to transform data as needed.
+
+Authored by Junibug4 - July 2025
+'''
+
 #%% ---- Imports ------------------------------------------------
 import matplotlib.pyplot as plt
 import numpy as np
@@ -21,12 +29,18 @@ start,end = 0, int(2.3/0.008) #len(data)
 data = data[start:end]  # Remove first START and last END samples to remove initial noise
 timeAxis = timeAxis[start:end]  # Adjust time axis accordingly
 
-
+'''
+The below for loop transforms data from between -180,180 to between 0,360
+'''
 # for i in range(len(data)):
 #     if data[i] < 0:
 #         data[i] += 360
 
 
+'''
+The below for loop transforms data from between 0,360 to 0 ->
+Useful for when the rocket was allowed to spin freely when calclating its moment of inertia
+'''
 # counter=0
 # scaledData = np.zeros(len(data))
 # for i in range (len(data[1:])):
