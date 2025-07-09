@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
-%matplotlib inline
+# %matplotlib inline
 from IPython.display import HTML
 import matplotlib.animation as animation
 #%%
@@ -13,11 +13,11 @@ print(os.getcwd())
 #===--------- Display arbitrary file ----------------------===#
 #===-------------------------------------------------------===#
 
-filename = 'datafiles/pid_233_multi.txt'
+filename = 'datafiles/pid_233_2.txt'
 data = np.loadtxt(filename)
 timeAxis = np.linspace(0,(len(data)*0.008),len(data)) # timestep for arduino is 8 ms
 
-start,end = int(1/0.008), len(data)
+start,end = 0, int(2.3/0.008) #len(data)
 data = data[start:end]  # Remove first START and last END samples to remove initial noise
 timeAxis = timeAxis[start:end]  # Adjust time axis accordingly
 
