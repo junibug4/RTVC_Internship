@@ -13,7 +13,7 @@ void setup() {
 void loop() {
   ldrValue=analogRead(ldrPin);
   Serial.println (ldrValue);   //open a serial monitor and look at the values
-  if(ldrValue < 800)
+  if(ldrValue < 400)
   digitalWrite(ledPin,HIGH);
   else
   digitalWrite(ledPin,LOW);
