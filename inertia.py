@@ -1,11 +1,11 @@
-#%% ---- Imports ------------------------------------------------
+#%% ====--------------------- Imports ---------------------------==== %%#
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
 
 
-# %% ------ Plots the acceleration of the spinning rocket -------
-# ## --- Use this to calculate the rocket's moment of inertia ---
+# %% ====---- Plots the acceleration of the spinning rocket -----==== %%#
+# ## ===-- Use this to calculate the rocket's moment of inertia --=== %%#
 
 
 filename = 'datafiles/spin_fan20_06_1603.txt'
@@ -19,11 +19,6 @@ data = data[start:end]  # Remove first START and last END samples to remove init
 timeAxis = timeAxis[start:end]  # Adjust time axis accordingly
 
 
-# for i in range(len(data)):
-#     if data[i] < 0:
-#         data[i] += 360
-
-
 counter=0
 scaledData = np.zeros(len(data))
 for i in range (len(data[1:])):
@@ -34,8 +29,7 @@ for i in range (len(data[1:])):
 
 timeAxis, data = timeAxis[:-1], scaledData[:-1]
 
-plt.plot(timeAxis, data, label='Spin Data')
-plt.hlines(160,timeAxis[0], timeAxis[-1], colors='orange', linestyles='dashed')
+plt.plot(timeAxis, data)
 plt.xlabel('Time (s)')
 plt.ylabel('Displacement (degrees)')   
 plt.show()
@@ -68,10 +62,12 @@ print("#-------------------------------------------------#")
 
 acceleration = params[0] * 2  # a is the angular acceleration
 
-torque = 0.015 * np.sin(np.radians(45))  # Thrust force * sin(fan angle)
+torque = 0.015 * np.sin(np.radians(45)) * 0.2  # Thrust force * sin(fan angle) * distance from fan to axis
 inertia = torque / acceleration  # I = T / alpha
 
-print("T = ",torque," I = ",inertia)
+print("a = ", acceleration,"T = ",torque," I = ",inertia)
 
 r = np.sqrt(inertia / 0.4508) # Moment of inertia = m * r^2
 print("Distance from axis to CoM = ", r)
+
+# %%

@@ -3,34 +3,24 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 
-#%% ===----------- Load data from file ----------=== %%#
+#%% ====--------------- Load data from file --------------==== %%#
 
-filename = 'datafiles/friction_05_1435.txt' # 'datafiles/spin_nofan_05_1116.txt'
+filename = 'datafiles/friction_05_1435.txt' # pendulum under gravity
 data = np.loadtxt(filename)
 timeAxis = np.linspace(0, (len(data) * 0.008), len(data))
-start, end = int(2.65 / 0.008), -20  # 0, len(data)
+start, end = int(2.65 / 0.008), -20  # start and end are used to clip the region of interest
 data = data[start:end]
 timeAxis , dt = timeAxis[:-int(2.65/0.008) -20] , timeAxis[1] - timeAxis[0]
 
 
-plt.plot(timeAxis, data, label='Spin Data')
+plt.plot(timeAxis, data, label='Experimental Data', color='k', linestyle='dashed', alpha=0.4)
+plt.legend()
+plt.show()
 
-
-#%% ------------------------------------------------ %%#
-
-# timeAxis = np.arange(0,30,1000)  # Adjust time axis accordingly
-    
-# w0 = 0
-# p0 = 60
-# L = .04
-# Beta = 6e-5
-# fan_angle = 15 
-
+#%% ====------------- Define Pendulum Motion -------------==== %%#
 
 def pendulum_model(timeAxis, fan_angle, p0, L, Beta, thrust = 0.015, w0=0 , mass = 0.4508):
     dt = timeAxis[1] - timeAxis[0]
-    # mass = 0.4508
-    # thrust = 0.015
     g = 9.81
 
 
@@ -51,25 +41,26 @@ def pendulum_model(timeAxis, fan_angle, p0, L, Beta, thrust = 0.015, w0=0 , mass
             # w = w + dt * (gravity_term  + drag_term) 
 
             position_array.append(p)
-            W.append(w)
+            # W.append(w)
     return position_array
 
-P = pendulum_model(timeAxis, fan_angle=15, p0=60, L=0.04, Beta=6e-5)
 
+P = pendulum_model(timeAxis, fan_angle=0, p0=60, L=0.01, Beta=5e-6, thrust=0)
 
-
-# plt.plot(timeAxis, W, label='Pendulum Model', color='green', linestyle='dashed', alpha=0.4)
 plt.plot(timeAxis, P, label='Pendulum Model')
+plt.legend()
+plt.show()
 
 
-#%% --- Fit the model to the data --- %%#
+#%% ====----------- Fit the model to the data -----------==== %%#
 
-guess = [0, -100, 0.04, 6e-5]  # Initial guess for parameters: [fan_angle, p0, L, Beta, w0, mass, thrust]
+guess = [0, -100, 0.03, 6e-5]  # Initial guess for parameters: [fan_angle, p0, L, Beta, w0, mass, thrust]
 
 params, covariance = curve_fit(pendulum_model, timeAxis, data, p0=guess)
 print(f"fan_angle: {params[0]}\np0: {params[1]}\nL: {params[2]}\nBeta: {params[3]}")#\nthrust: {params[4]}")
 
-plt.plot(timeAxis, pendulum_model(timeAxis, *params), color='red', linestyle='dashed', label='Fitted Model')
-plt.plot(timeAxis, data, label='Measured Data', alpha=0.6)
+plt.plot(timeAxis, data, label='Experimental Data', color='k', linestyle='dashed', alpha=0.4)
+plt.plot(timeAxis, pendulum_model(timeAxis, *params), label='Fitted Model', alpha = 0.8)
+plt.legend()
 plt.show()
 # %%

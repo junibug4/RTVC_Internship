@@ -1,3 +1,11 @@
+'''
+This code reads the local maxima from a dataset taken from the rocket returning 
+to rest from a disturbed position and fits an exponential decay function to these 
+peaks. It is now obsolete as it was designed to find an exponential decay factor 
+but the model now simulates velocity-dependent drag rather than an encompassing 
+exponential decay envelope. 
+'''
+
 #%% ---- Imports ------------------------------------------------
 import matplotlib.pyplot as plt
 import numpy as np

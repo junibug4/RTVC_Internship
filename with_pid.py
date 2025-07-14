@@ -2,6 +2,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.optimize import curve_fit
+import time
+from mpl_toolkits.mplot3d import Axes3D
 #%% ------------------------------------------------------------
 
 class PIDController:
@@ -60,7 +62,7 @@ def driven_pendulum_model(timeAxis, p0, L, Beta_L = 6e-9 , Beta_Q = 8e-8 , w0=0,
 
             gravity_term = - abs(g / L) * np.sin(np.radians(p))
             driving_term = thrust / (mass * L**2) * np.sin(np.radians(fan_angle))
-            linear_drag_term = -2 * Beta_L * w**2 / (mass * L**2)
+            linear_drag_term = -2 * Beta_L * w / (mass * L**2)
             quadratic_drag_term = -2 * Beta_Q * w**2 / (mass * L**2)
 
             w = w + dt * (gravity_term + driving_term + linear_drag_term + quadratic_drag_term) 
@@ -89,7 +91,9 @@ P = driven_pendulum_model(timeAxis, *experimental_args)
 # --- Load Experimetnal Data And Compare --- %%#
 
 plt.plot(timeAxis, P , label = 'Simulation')
+#%%
 
+plt.plot(timeAxis, P , label = 'Simulation')
 filename , start , end = 'datafiles/pid_233.txt' , int(0.8/0.008), int(2.3/0.008)
 data = np.loadtxt(filename)
 data = data[start:end]
@@ -177,27 +181,54 @@ def get_convergence(array):
 
 
 #%% 
-range_p = [1]#[0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.5]
-range_d = [1]#[0.5, .75 , 1 , 1.5, 2]
+starttime = time.time()
+
+range_p = [0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
+range_i = [0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
+range_d = [0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
+
+x , y , z , c = [] , [] , [] , []
 
 ten_secs = np.linspace(0,10,1000)
 
+
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
 for test_p in range_p:
-    for test_d in range_d:
-        if test_d != 0:
-            pid = PIDController(Kp=test_p, Ki=00, Kd=test_d, setpoint=0)
-            pid = PIDController(Kp=1, Ki=00, Kd=.01, setpoint=0)
-
+    for test_i in range_i:
+        for test_d in range_d:
+            pid = PIDController(Kp=test_p, Ki=test_i, Kd=test_d, setpoint=0)
             simulation = driven_pendulum_model(ten_secs, *params)
+            convergence_time = ten_secs[get_convergence(simulation)]
+            print("Model converges within a degree after ", convergence_time, " seconds.")
+            # x.append(test_p)
+            # y.append(test_i)
+            # z.append(test_d)
+            # c.append(5)
+            a = 1.01 - (0.1 * convergence_time)
+            ax.scatter(test_p, test_i, test_d, c=5, alpha=a)
 
-            # plt.plot(ten_secs, simulation , label = str(test_p))
+# Normalize alpha values between 0.1 and 1 based on convergence times
+# c_min, c_max = min(c), max(c)
+# alphas = [0.1 + 0.9 * (1 - (val - c_min) / (c_max - c_min)) for val in c]  # Faster convergence = higher alpha
 
-    # print("^^^  kp = ", test_p, " ^^^")
 
-    plt.plot(ten_secs, simulation , label = str(test_p))
-    plt.show()
+# for xi, yi, zi, ci, ai in zip(x, y, z, c, a):
+#     ax.scatter(xi, yi, zi, c=[[plt.cm.hot((ci-c_min)/(c_max-c_min))]], alpha=ai)
 
-    print(get_convergence(simulation))
+# mappable = plt.cm.ScalarMappable(cmap=plt.hot())
+# mappable.set_array(c)
+# fig.colorbar(mappable)
+plt.show()
 
-    print("Model converges within a degree after ",ten_secs[get_convergence(simulation)], " seconds.")
 
+
+endtime = time.time()
+runtime = endtime - starttime
+print(runtime)
+
+
+# %%
