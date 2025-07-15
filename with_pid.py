@@ -176,7 +176,7 @@ def get_convergence(array):
         if consecutive_convergence_counter >= 20:
             return index - 21
         if index == len(array)-1:
-            print("did not converge")
+            # print("did not converge")
             return len(array)-1
         
         
@@ -197,7 +197,7 @@ range_p = [0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
 range_i = [0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
 range_d = [0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
 
-x , y , z , c = [] , [] , [] , []
+x , y , z = [] , [] , []
 
 ten_secs = np.linspace(0,10,1000)
 
@@ -209,77 +209,29 @@ ax = fig.add_subplot(111, projection='3d')
 
 #%%
 
+starttime = time.time()
+
+
 for test_p in range_p:
+    c = []
     for test_i in range_i:
         for test_d in range_d:
             pid = PIDController(Kp=test_p, Ki=test_i, Kd=test_d, setpoint=0)
             simulation = driven_pendulum_model(ten_secs, *params)
             convergence_time = ten_secs[get_convergence(simulation)]
-            print("Model converges within a degree after ", convergence_time, " seconds.")
+            # print("Model converges within a degree after ", convergence_time, " seconds.")
             # x.append(test_p)
             # y.append(test_i)
             # z.append(test_d)
-            # c.append(5)
             a = time_to_alpha(convergence_time)
-            ax.voxels(test_p, test_i, test_d, alpha=a)
+            c.append(a)
+            # ax.voxels(test_p, test_i, test_d, alpha=a)
+    X,Y = np.meshgrid(range_i,range_d)
+    Z = np.reshape(c, (len(X) , len(Y)))
 
-#%%
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-
-# Prepare grid and alpha values
-alphas = np.zeros((len(range_p), len(range_i), len(range_d)))
-
-for i, test_p in enumerate(range_p):
-    for j, test_i in enumerate(range_i):
-        for k, test_d in enumerate(range_d):
-            pid = PIDController(Kp=test_p, Ki=test_i, Kd=test_d, setpoint=0)
-            simulation = driven_pendulum_model(ten_secs, *params)
-            convergence_time = ten_secs[get_convergence(simulation)]
-            print("Model converges within a degree after ", convergence_time, " seconds.")
-            alphas[i, j, k] = time_to_alpha(convergence_time)
-
-# Create a boolean mask for voxels to display (e.g., all True)
-filled = np.ones_like(alphas, dtype=bool)
-
-# Set all voxels to the same color (e.g., blue) with varying alpha
-base_color = np.array([0.2, 0.4, 0.8, 1.0])  # RGBA for blue
-facecolors = np.tile(base_color, alphas.shape + (1,))
-facecolors[..., -1] = alphas  # Only alpha varies
-
-ax.voxels(
-    filled,
-    facecolors=facecolors,
-    edgecolors=None
-)
-
-# Set axis labels
-ax.set_xlabel('Kp')
-ax.set_ylabel('Ki')
-ax.set_zlabel('Kd')
-ax.set_xticks(np.arange(len(range_p)))
-ax.set_xticklabels([str(p) for p in range_p])
-ax.set_yticks(np.arange(len(range_i)))
-ax.set_yticklabels([str(i) for i in range_i])
-ax.set_zticks(np.arange(len(range_d)))
-ax.set_zticklabels([str(d) for d in range_d])
-plt.show()
-
-#%%
-
-# Normalize alpha values between 0.1 and 1 based on convergence times
-# c_min, c_max = min(c), max(c)
-# alphas = [0.1 + 0.9 * (1 - (val - c_min) / (c_max - c_min)) for val in c]  # Faster convergence = higher alpha
-
-
-# for xi, yi, zi, ci, ai in zip(x, y, z, c, a):
-#     ax.scatter(xi, yi, zi, c=[[plt.cm.hot((ci-c_min)/(c_max-c_min))]], alpha=ai)
-
-# mappable = plt.cm.ScalarMappable(cmap=plt.hot())
-# mappable.set_array(c)
-# fig.colorbar(mappable)
-plt.show()
+    # plt.colorbar(Z, cax = )
+    plt.pcolormesh(X , Y , Z)
+    plt.show()
 
 
 
