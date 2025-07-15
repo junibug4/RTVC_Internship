@@ -40,7 +40,7 @@ def compute(self, process_variable, dt):
 
 #%% ===------ Defining Physical Model -----------------------------===#
 
-pid = PIDController(Kp=.2, Ki=0.1, Kd=.8, setpoint=0)
+pid = PIDController(Kp=.2, Ki=0.3, Kd=.3, setpoint=0)
 
 def driven_pendulum_model(timeAxis, p0, L, Beta_L = 6e-9 , Beta_Q = 8e-8 , w0=0, thrust = 0.015,  mass = 0.4508):
     dt = (timeAxis[1] - timeAxis[0])*1.1
@@ -81,7 +81,7 @@ experimental_args = [-40, 0.009, 6e-09, 8e-08, 350, 0.0132]
 
 pid = PIDController(Kp=.2, Ki=0.3, Kd=.3, setpoint=setpoint)
 
-timeAxis = np.linspace(0.05, 2.5, 60)  # 10 seconds, 1000 steps
+timeAxis = np.linspace(0.05, 2.5, 100)  # 10 seconds, 1000 steps
 P = driven_pendulum_model(timeAxis, *experimental_args)
 
 # plt.plot(timeAxis, P, label='Driven Pendulum Model', color='blue')
@@ -91,6 +91,8 @@ P = driven_pendulum_model(timeAxis, *experimental_args)
 # --- Load Experimetnal Data And Compare --- %%#
 
 plt.plot(timeAxis, P , label = 'Simulation')
+plt.legend()
+plt.show()
 #%%
 
 plt.plot(timeAxis, P , label = 'Simulation')
@@ -181,6 +183,14 @@ def get_convergence(array):
 
 
 #%% 
+'''     max time = 10    this should have alpha = 0
+        min time = 0     this should have alpha = 1     '''
+
+def time_to_alpha(x):
+    return (10-x)**2/100
+
+
+#%%
 starttime = time.time()
 
 range_p = [0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
@@ -197,6 +207,8 @@ ten_secs = np.linspace(0,10,1000)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
+#%%
+
 for test_p in range_p:
     for test_i in range_i:
         for test_d in range_d:
@@ -208,8 +220,53 @@ for test_p in range_p:
             # y.append(test_i)
             # z.append(test_d)
             # c.append(5)
-            a = 1.01 - (0.1 * convergence_time)
-            ax.scatter(test_p, test_i, test_d, c=5, alpha=a)
+            a = time_to_alpha(convergence_time)
+            ax.voxels(test_p, test_i, test_d, alpha=a)
+
+#%%
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+# Prepare grid and alpha values
+alphas = np.zeros((len(range_p), len(range_i), len(range_d)))
+
+for i, test_p in enumerate(range_p):
+    for j, test_i in enumerate(range_i):
+        for k, test_d in enumerate(range_d):
+            pid = PIDController(Kp=test_p, Ki=test_i, Kd=test_d, setpoint=0)
+            simulation = driven_pendulum_model(ten_secs, *params)
+            convergence_time = ten_secs[get_convergence(simulation)]
+            print("Model converges within a degree after ", convergence_time, " seconds.")
+            alphas[i, j, k] = time_to_alpha(convergence_time)
+
+# Create a boolean mask for voxels to display (e.g., all True)
+filled = np.ones_like(alphas, dtype=bool)
+
+# Set all voxels to the same color (e.g., blue) with varying alpha
+base_color = np.array([0.2, 0.4, 0.8, 1.0])  # RGBA for blue
+facecolors = np.tile(base_color, alphas.shape + (1,))
+facecolors[..., -1] = alphas  # Only alpha varies
+
+ax.voxels(
+    filled,
+    facecolors=facecolors,
+    edgecolors=None
+)
+
+# Set axis labels
+ax.set_xlabel('Kp')
+ax.set_ylabel('Ki')
+ax.set_zlabel('Kd')
+ax.set_xticks(np.arange(len(range_p)))
+ax.set_xticklabels([str(p) for p in range_p])
+ax.set_yticks(np.arange(len(range_i)))
+ax.set_yticklabels([str(i) for i in range_i])
+ax.set_zticks(np.arange(len(range_d)))
+ax.set_zticklabels([str(d) for d in range_d])
+plt.show()
+
+#%%
 
 # Normalize alpha values between 0.1 and 1 based on convergence times
 # c_min, c_max = min(c), max(c)
