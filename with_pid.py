@@ -150,18 +150,20 @@ plt.show()
 
 #%% --- Fit the model to the data --- %%#
 
-params, covariance = curve_fit(driven_pendulum_model, time4, data4, p0=experimental_args)
+params, covariance = curve_fit(driven_pendulum_model, timeAxis, data, p0=experimental_args)
 # print(f"p0: {params[0]}\nL: {params[1]}\nBeta: {params[2]}\nthrust: {params[3]}\nw0: {params[4]}\nmass: {params[5]}")
 
 plt.plot(timeAxis, driven_pendulum_model(timeAxis, *params), color='red', linestyle='dashed', label='Fitted Model')
 plt.plot(timeAxis, data, label='Measured Data', alpha=0.6)
 plt.show()
 
+# good_fit =  [-5.27429915e+01 , 9.41691913e-03 , 1.04081508e-08 , 3.20867000e-08 , 2.82924841e+02 , 1.62939512e-02]
+
 print(experimental_args,'\n', params)
 #%% ------ Define Convergence Function ------- %%#
 
 def datapoint_is_zero(x):
-    if abs(x) < 0.5:
+    if abs(x) < 1.5:
         return True
     else:
         return False
@@ -187,25 +189,24 @@ def get_convergence(array):
         min time = 0     this should have alpha = 1     '''
 
 def time_to_alpha(x):
-    return (10-x)**2/100
+    return (10-x)**3/1000
 
 
 #%%
 starttime = time.time()
 
-range_p = [0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
-range_i = [0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
-range_d = [0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
+range_p = [2,3,4,5,6]
+range_i = np.linspace (0.0, 10, 30)#[0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
+range_d = np.linspace (0.0, 10, 30)#[0.01 ,0.1 , 0.3, 0.5, .75 , 1 , 1.25, 1.5]
 
-x , y , z = [] , [] , []
 
 ten_secs = np.linspace(0,10,1000)
 
 
 
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+# fig = plt.figure()
+# ax = fig.add_subplot(111, projection='3d')
 
 #%%
 
@@ -213,31 +214,35 @@ starttime = time.time()
 
 
 for test_p in range_p:
-    c = []
+    c , times = [] , []
     for test_i in range_i:
         for test_d in range_d:
             pid = PIDController(Kp=test_p, Ki=test_i, Kd=test_d, setpoint=0)
             simulation = driven_pendulum_model(ten_secs, *params)
             convergence_time = ten_secs[get_convergence(simulation)]
-            # print("Model converges within a degree after ", convergence_time, " seconds.")
-            # x.append(test_p)
-            # y.append(test_i)
-            # z.append(test_d)
-            a = time_to_alpha(convergence_time)
-            c.append(a)
-            # ax.voxels(test_p, test_i, test_d, alpha=a)
+            
+            times.append(convergence_time)
+            c.append(time_to_alpha(convergence_time))
+            
+            # plt.plot(ten_secs,simulation)
+            # plt.vlines(convergence_time, np.min(simulation),np.max(simulation))
+            # plt.show()
+            # print(convergence_time, a)
+
     X,Y = np.meshgrid(range_i,range_d)
     Z = np.reshape(c, (len(X) , len(Y)))
 
     # plt.colorbar(Z, cax = )
-    plt.pcolormesh(X , Y , Z)
+    plt.contourf(X,Y,Z)
+    plt.xlabel("pI")
+    plt.ylabel("pD")
+
     plt.show()
+    print("^^  kP = ", test_p, "  ^^  shortest time = " , np.min(times) , " ^^")
 
 
 
 endtime = time.time()
 runtime = endtime - starttime
-print(runtime)
+print("and it took ",runtime, " seconds")
 
-
-# %%
