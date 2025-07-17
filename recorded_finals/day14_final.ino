@@ -1,11 +1,8 @@
 #include <Servo.h>
 #include <PID_v1.h>
 #include <I2Cdev.h>
-#include <SPI.h>
-#include <SD.h>
 #include <MPU6050_6Axis_MotionApps20.h>
 
-const int chipSelect = 4;
 
 MPU6050 mpu;
 Servo pitchServo;
@@ -56,20 +53,14 @@ PID yawPID(&yaw, &yawOutput, &yawSetpoint, Kp_yaw, Ki_yaw, Kd_yaw, REVERSE);
 
 void setup() {
   Serial.begin(115200);
-  while (!Serial);
 
   pitchServo.attach(PITCH_SERVO_PIN);
   yawServo.attach(YAW_SERVO_PIN);
 
-  Serial.print("Initializing SD card...");
-  if (!SD.begin(chipSelect)) {
-    Serial.println("Card failed, or not present");
-    //while (1);
-  }
-  Serial.println("Card initialized.");
 
   pitchSetpoint = 0;
   yawSetpoint = 0;
+
 
   pitchPID.SetMode(AUTOMATIC);
   pitchPID.SetOutputLimits(-70, 70);
@@ -152,21 +143,6 @@ void loop() {
   pitchServo.write(pitchServoPos);
   yawServo.write(yawServoPos);
 
-  File dataFile = SD.open("datalog.txt", FILE_WRITE);
-  if (dataFile) {
-    dataFile.print("Pitch = ");
-    dataFile.print(pitch);
-    dataFile.print(" PitchOut = ");
-    dataFile.print(pitchOutput);
-    dataFile.print(" Yaw = ");
-    dataFile.print(yaw);
-    dataFile.print(" YawOut = ");
-    dataFile.print(yawOutput);
-    dataFile.println();
-    dataFile.close();
-  } else {
-    //Serial.println("error opening datalog.txt");
-  }
 
   Serial.print("Pitch = "); Serial.print(pitch);
   Serial.print(" | PitchServo = "); Serial.print(pitchServoPos);

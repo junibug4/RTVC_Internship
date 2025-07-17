@@ -1,0 +1,64 @@
+{"workbench.colorCustomizations": {
+
+
+"[Monokai Pro (Filter Spectrum)]": {
+
+    
+    // activity bar
+    "activityBar.foreground": "#e5d6b2",
+    "activityBar.inactiveForeground": "#bd9a3a",
+    "activityBar.background": "#29271d",
+
+    // buttons
+    "button.foreground":"#bd9a3a",
+
+    // minimap
+    // "minimap.background":"#463d25",
+
+    // tabs
+    "tab.border":"#3f310a",
+    "tab.activeBorder":"#bd9a3a",
+    "tab.activeBackground":"#3a3727",
+    "tab.activeForeground":"#e5d6b2", // dont like
+    "tab.inactiveBackground":"#282722",
+    "tab.hoverBackground":"#463d25",
+
+    //sidebar
+    "sideBar.background":"#333024",
+    "sideBarSectionHeader.background":"#29271d",
+    "sideBarSectionHeader.foreground":"#b5a373",
+    "sideBarTitle.foreground":"#e5d6b2",
+
+    // editor
+    "editor.background":"#2e2d28",
+    "editorLineNumber.activeForeground":"#e5d6b2",
+
+    // panel
+    "panel.background":"default",
+    "outputView.background":"default",
+
+    //status bar
+    "statusBar.foreground":"#6f591b",
+    "statusBarItem.hoverForeground":"#e5d6b2",
+    "statusBarItem.prominentBackground":"#3f310a",
+    "statusBarItem.prominentForeground":"#bd9a3a",
+
+    // title bar
+    "titleBar.activeBackground":"#403e38",
+    "titleBar.activeForeground":"#cbab54",
+    "titleBar.inactiveBackground":"default",
+    "titleBar.inactiveForeground":"#897d5f",
+    "titleBar.border":"default",
+
+    // menu bar
+    "menu.background":"#2d281b",
+    "menu.foreground":"#e5d6b2",
+
+    // command center
+    "commandCenter.activeForeground":"#e5d6b2",
+    "commandCenter.activeBorder":"#e5d6b2",
+
+    // terminal
+    "terminal.background":"#282722",
+
+}}}
